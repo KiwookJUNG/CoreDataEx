@@ -18,6 +18,12 @@ class ListVC: UITableViewController {
         return self.fetch()
     }()
     
+    override func viewDidLoad() {
+        let addBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add(_:)))
+        self.navigationItem.rightBarButtonItem = addBtn
+    }
+    
+    
     // 데이터를 읽어올 메소드
     func fetch() -> [NSManagedObject] {
         
@@ -73,6 +79,28 @@ class ListVC: UITableViewController {
         cell.detailTextLabel?.text = contents
         
         return cell
+    }
+    
+    @objc func add(_ sender: Any){
+     
+        let alert = UIAlertController(title: "게시글 등록", message: nil, preferredStyle: .alert)
+        
+        // 입력 필드 추가 ( 이름 & 전화 번호 )
+        alert.addTextField { $0.placeholder = "제목"}
+        alert.addTextField { $0.placeholder = "내용"}
+        
+        // 버튼 추가(Cancel & Save)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { (_) in
+            guard let title = alert.textFields?.first?.text, let contents = alert.textFields?.last?.text else {
+                return
+            }
+            // 값을 저장하고, 성공이면 테이블 뷰를 리로드한다.
+            if self.save(title: title, contents: contents) == true {
+                self.tableView.reloadData()
+            }
+        })
+        self.present(alert, animated: false)
     }
     
 }
