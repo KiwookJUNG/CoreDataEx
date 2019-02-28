@@ -32,4 +32,24 @@ class ListVC: UITableViewController {
         
         return result
     }
+    
+   
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.list.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // 해당하는 데이터 가져오기
+        let record = self.list[indexPath.row]
+        let title = record.value(forKey: "title") as? String
+        let contents = record.value(forKey: "contents") as? String
+        
+        // 셀을 생성하고, 값을 대입한다.
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")!
+        cell.textLabel?.text = title
+        cell.detailTextLabel?.text = contents
+        
+        return cell
+    }
+    
 }
