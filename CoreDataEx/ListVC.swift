@@ -81,6 +81,28 @@ class ListVC: UITableViewController {
             return false
         }
     }
+    
+    func edit(object: NSManagedObject, title: String, contents: String) -> Bool {
+        // 1. 앱 델리게이트 객체 참조
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        // 2. 관리 객체 컨텍스트 참조
+        let context = appDelegate.persistentContainer.viewContext
+        // 3. 관리 객체의 값을 수정
+        
+        object.setValue(title, forKey: "title")
+        object.setValue(contents, forKey: "contents")
+        object.setValue(Date(), forKey: "regdate")
+        
+        // 4. 영구 저장소에 반영한다.
+        do {
+            try context.save()
+            return true
+        } catch {
+            context.rollback()
+            return false
+        }
+        
+    }
    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.list.count
