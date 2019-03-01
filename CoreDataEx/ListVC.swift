@@ -136,6 +136,34 @@ class ListVC: UITableViewController {
         }
     }
     
+    // 사용자가 셀을 선택하면 내용을 수정할 수 있는 창이 뜨도록 메소드 구현
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // 1. 선택된 행에 핻강하는 데이터 가져오기
+        let object = self.list[indexPath.row]
+        let title = object.value(forKey: "title") as? String
+        let contents = object.value(forKey: "contents") as? String
+        
+        let alert = UIAlertController(title: "게시글 수정", message: nil, preferredStyle: .alert)
+        
+        // 2. 입력 필드 추가 ( 기존 값 입력 )
+        alert.addTextField() { $0.text = title }
+        alert.addTextField() { $0.text = contents }
+        
+        // 3. 버튼 추가 (Cancel & Save)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { (_) in
+            guard let title = alert.textFields?.first?.text,
+                let contents = alert.textFields?.last?.text else {
+                    return
+            }
+            // 4. 값을 수정하는 메소드를 호출하고, 그 결과가 성공이면 테이블 뷰를 리로드 한다.
+            if self.edit(object: object, title: title, contents: contents) == true {
+                self.tableView.reloadData()
+            }
+            
+        }))
+    }
+    
     @objc func add(_ sender: Any){
      
         let alert = UIAlertController(title: "게시글 등록", message: nil, preferredStyle: .alert)
