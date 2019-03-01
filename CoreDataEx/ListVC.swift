@@ -33,6 +33,12 @@ class ListVC: UITableViewController {
         let context = appDelegate.persistentContainer.viewContext
         // 3. 요청 객체 생성
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Board")
+        
+        // 3-1. 정렬 속성 설정
+        // 내림차순으로 정렬하기(나중에 쓴글이 위로 올라오게)
+        let sort = NSSortDescriptor(key: "regdate", ascending: false)
+        fetchRequest.sortDescriptors = [sort]
+        
         // 4. 데이터 가져오기
         let result = try! context.fetch(fetchRequest)
         
@@ -54,7 +60,9 @@ class ListVC: UITableViewController {
         // 4. 영구 저장소에 커밋되고 나면 list 프로퍼티에 추가한다.
         do {
             try context.save()
-            self.list.append(object)
+            // self.list.append(object) append를 사용하면 배열의 제일 뒤쪽에 추가됨
+            // 새 게시글 등록시 self.list 배열의 0번 인덱스에 삽입되도록 코드를 수정함
+            self.list.insert(object, at: 0)
             return true
         } catch {
             // 5. 실패시 rollback()
@@ -96,6 +104,10 @@ class ListVC: UITableViewController {
         // 4. 영구 저장소에 반영한다.
         do {
             try context.save()
+            self.list = self.fetch() // list 배열을 갱신한다
+            // edit 메소드에서 데이터 변경 후에 fetch 메소드를 호출하여 list 배열을 갱신하도록 코드를 추가
+            // 글을 수정하면 등록 날짜도 함께 갱신되기 떄문에, 최근에 수정한 글이 배열의 제일 첫 번째
+            // 아이템이 되어야한다.
             return true
         } catch {
             context.rollback()
@@ -158,7 +170,16 @@ class ListVC: UITableViewController {
             }
             // 4. 값을 수정하는 메소드를 호출하고, 그 결과가 성공이면 테이블 뷰를 리로드 한다.
             if self.edit(object: object, title: title, contents: contents) == true {
-                self.tableView.reloadData()
+                // self.tableView.reloadData()
+                
+                // 셀의 내용을 직접 수정한다.
+                let cell = self.tableView.cellForRow(at: indexPath)
+                cell?.textLabel?.text = title
+                cell?.detailTextLabel?.text = contents
+                
+                // 수정된 셀을 첫번째 행으로 이동시킨다.
+                let firstIndexPath = IndexPath(item: 0, section: 0)
+                self.tableView.moveRow(at: indexPath, to: firstIndexPath)
             }
             
         }))
