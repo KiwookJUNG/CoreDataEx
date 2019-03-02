@@ -204,6 +204,15 @@ class ListVC: UITableViewController {
         self.present(alert, animated: false)
     }
     
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        let object = self.list[indexPath.row]
+        let uvc = self.storyboard?.instantiateViewController(withIdentifier: "LogVC") as! LogVC
+        
+        uvc.board = object as! BoardMO
+        
+        self.show(uvc, sender: self)
+    }
+    
     @objc func add(_ sender: Any){
      
         let alert = UIAlertController(title: "게시글 등록", message: nil, preferredStyle: .alert)
