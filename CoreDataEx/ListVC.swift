@@ -111,6 +111,14 @@ class ListVC: UITableViewController {
         object.setValue(contents, forKey: "contents")
         object.setValue(Date(), forKey: "regdate")
         
+        // 3-1. Log 관리 객체 생성 및 어트리뷰트에 값 대입
+        let logObject = NSEntityDescription.insertNewObject(forEntityName: "Log", into: context) as! LogMO
+        logObject.regdate = Date()
+        logObject.type = LogType.edit.rawValue
+        
+        // 3-2. 게시글 객체의 logs 속성에 새로 생성된 로그 객체 추가
+        (object as! BoardMO).addToLogs(logObject)
+        
         // 4. 영구 저장소에 반영한다.
         do {
             try context.save()
